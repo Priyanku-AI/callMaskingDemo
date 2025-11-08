@@ -10,6 +10,9 @@ app.use(express.json());
 // Twilio client setup
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+const riderNumber = process.env.RIDER_NUMBER;
+const driverNumber = process.env.DRIVER_NUMBER;
+
 // Test api
 app.get("/test", (req, res) => {
     res.json({ message: "Hello from the server!" });
@@ -43,16 +46,18 @@ app.post("/call", async (req, res) => {
 app.post("/callRider", async (req, res) => {
     try {
         console.log("Call to rider initiated");
-        const { riderNumber, driverNumber } = req.body;
-        if (!riderNumber || !driverNumber) {
-            return res.status(400).json({ error: "Both riderNumber and driverNumber are required" });
-        }
+        // const { riderNumber, driverNumber } = req.body;
+        // if (!riderNumber || !driverNumber) {
+        //     return res.status(400).json({ error: "Both riderNumber and driverNumber are required" });
+        // }
 
         // Initiate call to rider first
         const call = await client.calls.create({
             to: riderNumber,
             from: process.env.TWILIO_PHONE_NUMBER,
-            url: `https://${process.env.SERVER_URL}/connect?driverNumber=${encodeURIComponent(driverNumber)}`
+            // url: `https://${process.env.SERVER_URL}/connect?driverNumber=${encodeURIComponent(driverNumber)}`
+            url: `https://${process.env.SERVER_URL}/connect`
+
         });
 
         console.log("Call initiated:", call.sid);
@@ -66,7 +71,7 @@ app.post("/callRider", async (req, res) => {
 // 2️⃣ Endpoint: Twilio calls this when rider answers
 app.post("/connect", (req, res) => {
     console.log("Call to rider connected");
-    const driverNumber = req.query.driverNumber;
+    // const driverNumber = req.query.driverNumber;
 
     const twiml = new twilio.twiml.VoiceResponse();
     const dial = twiml.dial();
