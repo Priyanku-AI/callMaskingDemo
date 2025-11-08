@@ -1,17 +1,44 @@
-
 // components/CallMasking.js
 import React, { useState } from 'react';
 
 const CallMasking = ({ proxyNumber }) => {
   const [isCalling, setIsCalling] = useState(false);
+  const [callStatus, setCallStatus] = useState('');
 
-  const handleCall = () => {
+  const handleCall = async () => {
     setIsCalling(true);
-    // Simulate call connection
-    setTimeout(() => {
+    setCallStatus('Initiating secure call...');
+
+    try {
+      const response = await fetch('http://localhost:5000/callRider', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // Empty body as requested
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      setCallStatus('Call connecting...');
+      
+      // Simulate call connection delay
+      setTimeout(() => {
+        setIsCalling(false);
+        setCallStatus('');
+        alert(`Call connected successfully!\n\nProxy: ${proxyNumber}\nStatus: ${result.message || 'Connected'}`);
+      }, 2000);
+
+    } catch (error) {
+      console.error('Call initiation failed:', error);
       setIsCalling(false);
-      alert(`Call connected through proxy: ${proxyNumber}\n\nNote: In real implementation, this would connect to Twilio's call masking service.`);
-    }, 3000);
+      setCallStatus('');
+      alert(`Call failed: ${error.message}\n\nPlease check if the backend server is running on http://localhost:5000`);
+    }
   };
 
   return (
@@ -41,7 +68,7 @@ const CallMasking = ({ proxyNumber }) => {
             {isCalling ? (
               <>
                 <div className="calling-animation"></div>
-                Connecting...
+                {callStatus || 'Connecting...'}
               </>
             ) : (
               <>
@@ -52,6 +79,12 @@ const CallMasking = ({ proxyNumber }) => {
           </button>
         </div>
 
+        {callStatus && (
+          <div className="call-status-message">
+            {callStatus}
+          </div>
+        )}
+
         <div className="security-features">
           <div className="security-badge">
             <span className="badge-icon">🔒</span>
@@ -60,6 +93,10 @@ const CallMasking = ({ proxyNumber }) => {
           <div className="security-badge">
             <span className="badge-icon">🛡️</span>
             <span>Secure Connection</span>
+          </div>
+          <div className="security-badge">
+            <span className="badge-icon">🌐</span>
+            <span>Live API</span>
           </div>
         </div>
       </div>
