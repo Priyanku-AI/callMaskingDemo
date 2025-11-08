@@ -2,7 +2,11 @@ const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
 const twilio = require("twilio");
+const cors = require("cors");
 const app = express();
+
+// Enable CORS for all origins (for POC)
+app.use(cors());
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
