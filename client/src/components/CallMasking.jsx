@@ -37,7 +37,7 @@ const CallMasking = ({ proxyNumber }) => {
       console.error('Call initiation failed:', error);
       setIsCalling(false);
       setCallStatus('');
-      alert(`Call failed: ${error.message}\n\nPlease check if the backend server is running on http://localhost:5000`);
+      alert(`Call failed: ${error.message}\n\nPlease check if the backend server is running`);
     }
   };
 
